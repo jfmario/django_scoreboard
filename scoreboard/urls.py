@@ -20,9 +20,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from main.urls import main_api_urls
+from main.views import main_app, site_home
+
 urlpatterns = [
   path(r'accounts/', include('allauth.urls')),
   path('admin/', admin.site.urls),
+  path('api/', include(main_api_urls)),
+  path('main/', main_app),
+  path('', site_home)
 ]
 
 if settings.DEBUG is True:

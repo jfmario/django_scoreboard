@@ -1,8 +1,44 @@
 
+import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
+import markdown
+
+from jfmario_django.models import SingletonModel
+
+DEFAULT_MARKDOWN_EXTENSIONS = [
+  'markdown.extensions.abbr',
+  'markdown.extensions.extra',
+  'markdown.extensions.fenced_code',
+  'markdown.extensions.tables'
+]
+
+class SiteSettings(SingletonModel):
+
+  SITE_BRANDING_DEFAULT = 'Scoreboard'
+  WELCOME_TITLE_DEFAULT = 'Welcome to the Scoreboard'
+  WELCOME_MESSAGE_DEFAULT = "Please come on in and register for a competition."
+
+  site_branding = models.CharField(max_length=32, default=SITE_BRANDING_DEFAULT)
+  welcome_title = models.CharField(max_length=64, default=WELCOME_TITLE_DEFAULT)
+  welcome_message = models.TextField(
+    default=WELCOME_MESSAGE_DEFAULT,
+    help_text="Markdown Field"
+  )
+
+  class Meta:
+    verbose_name_plural = "Site Settings"
+
+  def __str__(self):
+    return "Site Settings"
+
+  @property
+  def welcome_message_html(self):
+    return markdown.markdown(self.welcome_message,
+      extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+
 
 class Challenge(models.Model):
 
@@ -43,7 +79,7 @@ class Challenge(models.Model):
   name = models.CharField(max_length=64)
   status = models.IntegerField(choices=STATUS_CHOICES, default=0)
   question = models.TextField(help_text="Markdown Field")
-  hint = models.TextField(help_text="Markdown Field")
+  hint = models.TextField(help_text="Markdown Field", null=True)
   question_type = models.IntegerField(choices=QUESTION_TYPE_CHOICES, default=0)
   short_answer = models.CharField(
     blank=True,
@@ -54,7 +90,8 @@ class Challenge(models.Model):
   multiple_choice_options = models.TextField(
     blank=True,
     default=MULTIPLE_CHOICE_OPTIONS_DEFAULT,
-    help_text="Put one choice per line."
+    help_text="Put one choice per line.",
+    null=True
   )
   regex_input_type = models.IntegerField(
     choices=REGEX_INPUT_TYPE_CHOICES,
@@ -85,6 +122,29 @@ class Challenge(models.Model):
 
   def __str__(self):
     return self.backend_name
+
+  @property
+  def html_question(self):
+    return markdown.markdown(self.question,
+      extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+  @property
+  def html_hint(self):
+    return markdown.markdown(self.hint,
+      extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+
+  def is_visible_to_user(self, upr):
+
+    if self.status < 1:
+      return False
+    if self.challenge_unlock_min_points > upr.score:
+      return False
+    elif len(list(self.challenge_unlock_dependencies.all())) == 0:
+      return True
+    else:
+      for c in self.challenge_unlock_dependencies.all():
+        if c not in upr.challenges_solved.all():
+          return False
+    return True
 
 class ChallengeGroup(models.Model):
 
@@ -123,28 +183,59 @@ class Competition(models.Model):
   use_custom_description = models.BooleanField(
     help_text="If unchecked, description from the competition schema will be used."
   )
-  custom_description = models.TextField(help_text="Markdown Field")
+  custom_description = models.TextField(blank=True, help_text="Markdown Field", null=True)
   use_custom_welcome_message = models.BooleanField(
     help_text="If unchecked, welcome message from the competition schema will be used."
   )
-  custom_welcome_message = models.TextField(help_text="Markdown Field")
-  schema = models.ManyToManyField(CompetitionSchema)
+  custom_welcome_message = models.TextField(blank=True, help_text="Markdown Field", null=True)
+  schema = models.ForeignKey(CompetitionSchema, on_delete=models.CASCADE)
   start_time = models.DateTimeField()
   end_time = models.DateTimeField()
   is_open = models.BooleanField(
     default=True,
     help_text="If unchecked, users will be unable to register for this or access this unless they are already assigned to this."
   )
-  users = models.ManyToManyField(User)
+  users = models.ManyToManyField(User, blank=True)
 
   def __str__(self):
     return self.backend_name
+
+  @property
+  def description(self):
+    if (self.use_custom_description):
+      return self.custom_description
+    else:
+      return self.schema.default_description
+  @property
+  def welcome_message(self):
+    if (self.use_custom_welcome_message):
+      return self.custom_welcome_message
+    else:
+      return self.schema.default_welcome_message
+  @property
+  def html_description(self):
+    return markdown.markdown(self.description,
+      extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+  @property
+  def html_welcome_message(self):
+    return markdown.markdown(self.welcome_message,
+      extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+
+  @property
+  def status(self):
+    now = datetime.datetime.now(datetime.timezone.utc)
+    if self.start_time > now:
+      return 'NOT_STARTED'
+    if self.end_time < now:
+      return 'OVER'
+    else:
+      return 'ACTIVE'
 
 class UserParticipationRecord(models.Model):
 
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
-  challenges_solved = models.ManyToManyField(Challenge)
+  challenges_solved = models.ManyToManyField(Challenge, blank=True)
   score = models.IntegerField(default=0)
 
   def __str__(self):

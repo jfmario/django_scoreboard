@@ -1,0 +1,271 @@
+
+- model: main.challenge
+  pk: 101
+  fields:
+    backend_name: "Sample: Best Fruit"
+    name: "Best Fruit"
+    status: 2
+    question: |
+      What is the best kind of fruit listed?
+    hint: |
+      It starts with the letter "o".
+    question_type: 1
+    short_answer: oranges
+    multiple_choice_options: |
+      bread
+      cardboard
+      oranges
+      pizza
+- model: main.challenge
+  pk: 102
+  fields:
+    backend_name: "Sample: Draft Challenge"
+    name: Draft Challenge
+    status: 0
+    question: |
+      This challenges is in draft mode.
+    question_type: 0
+    short_answer: None
+- model: main.challenge
+  pk: 103
+  fields:
+    backend_name: "Sample: Experimental Challenge"
+    name: Experimental Challenge
+    status: 1
+    question: |
+      This challenges is in experimental mode.
+      Just type "experiment" to solve it.
+    question_type: 0
+    short_answer: experiment
+- model: main.challenge
+  pk: 104
+  fields:
+    backend_name: "Sample: Simple Math"
+    name: Draft Challenge
+    status: 2
+    question: |
+      What is 1 + 2?
+    hint: |
+      It is the same as 2 + 1.
+    question_type: 0
+    short_answer: None
+- model: main.challenge
+  pk: 105
+  fields:
+    backend_name: "Sample: Markdown in Question and Hint"
+    name: Summarize Table
+    status: 2
+    question: |
+      What is the total price for 1 orange and 2 apples?
+
+      | Fruit Name | Price |
+      | --- | --- |
+      | Apple | $1.76 |
+      | Banana | $7.31 |
+      | Orange | $7.44 |
+    hint: |
+      Try assigning the correct variables and doing the calculation
+      (Javascript example):
+
+      ```
+      var apple_price = 1.76;
+      var orange_price = 7.44
+
+      console.log(orange_price + (2 * apple_price));
+      ```
+    question_type: 0
+    short_answer: 10.96
+- model: main.challenge
+  pk: 106
+  fields:
+    backend_name: "Sample: Regex for ignoring case"
+    name: State Capital
+    status: 2
+    question: |
+      What is the capital city of South Carolina?
+    hint: |
+      It's not Charleston.
+    question_type: 3
+    regex_answer: "^(c|C)olumbia$"
+- model: main.challenge
+  pk: 107
+  fields:
+    backend_name: "Sample: Regex against Textarea"
+    name: Spelling the Number 5
+    status: 2
+    question: |
+      Type as much text as you want, but have the number 5
+      spelled out somehwere in the text.
+    hint: |
+      It is spelled like this: `five`.
+    question_type: 3
+    regex_input_type: 1
+    regex_answer: "five"
+- model: main.challenge
+  pk: 108
+  fields:
+    backend_name: "Sample: High Value Question"
+    name: State Capital 2
+    status: 2
+    question: |
+      What is the capital city of Iowa?
+    hint: |
+      Try googling it.
+    question_type: 0
+    short_answer: Des Moines
+    points: 50
+- model: main.challenge
+  pk: 109
+  fields:
+    backend_name: "Sample: Costly Hint"
+    name: State Capital 3
+    status: 2
+    question: |
+      What is the capital city of Virginia?
+    hint: |
+      This hint was not worth it.
+    question_type: 0
+    short_answer: Richmond
+    hint_cost: 8
+- model: main.challenge
+  pk: 110
+  fields:
+    backend_name: "Sample: Not Worth Answering"
+    name: State Capital 4
+    status: 2
+    question: |
+      What is the capital city of Maryland?
+    hint: |
+      The answer stored in the database is wrong anyways.
+    question_type: 0
+    short_answer: Baltimore
+    wrong_answer_cost: 20
+- model: main.challenge
+  pk: 111
+  fields:
+    backend_name: "Sample: Point Dependency"
+    name: "Worst Fruit"
+    status: 2
+    question: |
+      Now that you have at least 40 points, here is an easy one:
+
+      What is the worst kind of fruit listed?
+    hint: |
+      It starts with the letter "o".
+    question_type: 1
+    short_answer: oranges
+    multiple_choice_options: |
+      bread
+      cardboard
+      oranges
+      pizza
+    challenge_unlock_min_points: 40
+- model: main.challenge
+  pk: 112
+  fields:
+    backend_name: "Sample: Question Dependency"
+    name: Country Capital
+    status: 2
+    question: |
+      Now that you know the capital of several US States, what
+      is the capital of Russia?
+    hint: |
+      The Kremlin is up in here.
+    question_type: 0
+    short_answer: Moscow
+    challenge_unlock_dependencies:
+      - 106
+      - 108
+      - 109
+- model: main.challenge
+  pk: 112
+  fields:
+    backend_name: "Sample: Question Dependency"
+    name: Country Capital
+    status: 2
+    question: |
+      Now that you know the capital of several US States, what
+      is the capital of Russia?
+    hint: |
+      The Kremlin is up in here.
+    question_type: 0
+    short_answer: Moscow
+    challenge_unlock_dependencies:
+      - 106
+      - 108
+      - 109
+- model: main.challenge
+  pk: 113
+  fields:
+    backend_name: "Sample: File Attached"
+    name: File Analysis
+    status: 2
+    question: |
+      What do you think of this file?
+    hint: |
+      This question assumes that you have the file at
+      `<projectRoot>/.media/files/myfile.txt`
+    question_type: 1
+    short_answer: I like it.
+    multiple_choice_options: |
+      I hate it.
+      I like it.
+      I love it.
+    data_file: files/myfile.txt
+
+- model: main.challengeGroup
+  pk: 101
+  fields:
+    backend_name: "Sample: Warm Up"
+    name: Warm Up
+    description: |
+      This is a collection of really easy questions.
+    challenges:
+      - 101
+      - 102
+      - 103
+      - 113
+- model: main.challengeGroup
+  pk: 102
+  fields:
+    backend_name: "Sample: Math"
+    name: Math
+    description: |
+      This is a collection of math questions.
+    challenges:
+      - 104
+      - 105
+      - 107
+      - 111
+- model: main.challengeGroup
+  pk: 103
+  fields:
+    backend_name: "Sample: Geography"
+    name: Geography
+    description: |
+      This is a collection of geography questions.
+    challenges:
+      - 106
+      - 108
+      - 109
+      - 110
+      - 112
+
+- model: main.competitionSchema
+  pk: 101
+  fields:
+    backend_name: "Sample Challenge Set"
+    name: A Set of Questions
+    default_description:
+      This is a set of questions in three different categories.
+    default_welcome_message:
+      Welcome to this challenge set. Go ahead and try to solve some of
+      these questions.
+
+      The person with the most points at the end wins.
+
+      Grab a cup of covfefe and enjoy!
+    challenge_groups:
+      - 101
+      - 102
+      - 103

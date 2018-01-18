@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'allauth_bootstrap',
+    'jfmario_django',
 
     'main',
 
@@ -126,7 +127,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+ENV_PATH = os.path.abspath(os.path.dirname(__file__))
+MEDIA_ROOT = os.path.join(ENV_PATH, '..', '.media/')
+STATIC_ROOT = os.path.join(ENV_PATH, 'static/')
+
+MEDIA_URL = 'media/'
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+  os.path.join(BASE_DIR, "static")
+]
+
+## Fixture Config
+
+FIXTURE_DIRS = [
+  os.path.join(BASE_DIR, "_competitions")
+]
 
 ## AllAuth Config
 
@@ -138,13 +154,6 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend'
 )
 
+LOGIN_REDIRECT_URL = '/main/'
+
 SITE_ID = 1
-
-## Media Files #
-
-ENV_PATH = os.path.abspath(os.path.dirname(__file__))
-MEDIA_ROOT = os.path.join(ENV_PATH, '..', '.media/')
-STATIC_ROOT = os.path.join(ENV_PATH, 'static/')
-
-MEDIA_URL = 'media/'
-STATIC_URL ='static/'
