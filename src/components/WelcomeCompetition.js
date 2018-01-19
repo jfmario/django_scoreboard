@@ -20,6 +20,20 @@ class WelcomeCompetition extends Component {
     };
   }
 
+  componentDidMount() {
+    console.log("WelcomeCompetition did mount.");
+    console.log(this.state);
+  }
+
+  componentWillReceiveProps(props) {
+    console.log("WelcomeMain will receive props.");
+    console.log(props);
+    this.setState({
+      descriptionHtml: { __html: props.competition.description },
+      welcomeHtml: { __html: props.competition.welcome }
+    })
+  }
+
   render() {
     return (
       <div className="card">

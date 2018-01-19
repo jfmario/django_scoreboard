@@ -4,6 +4,7 @@ import  { Route, Switch } from 'react-router-dom';
 
 import axios from 'axios';
 
+import ChallengesMain from '../components/ChallengesMain';
 import CompetitionHeader from '../components/CompetitionHeader';
 import CompetitionMain from '../components/CompetitionMain';
 
@@ -34,6 +35,8 @@ class Competition extends Component {
     });
   }
   async componentWillReceiveProps(props) {
+    console.log("Competition will receive props.");
+    console.log(props);
     if (props.match.params.competitionId != this.state.competitionId) {
       var competitionId = props.match.params.competitionId;
       await this.loadCompetition(competitionId);
@@ -70,7 +73,7 @@ class Competition extends Component {
 
         <Switch>
           <Route exact path='/competition/:competitionId' render={(routeProps) => { return <CompetitionMain competitionId={routeProps.competitionId} competition={self.state.competition} challenges={self.state.challenges} /> }}/>
-          <Route exact path='/competition/:competitionId/challenges' render={(routeProps) => { return <p>Challenges</p> }} />
+          <Route path='/competition/:competitionId/challenges' render={(routeProps) => { return <ChallengesMain challenges={self.state.challengeGroups} competitionId={routeProps.match.params.competitionId} /> }} />
           <Route exact path='/competition/:competitionId/leaderboard' render={(routeProps) => { return <p>Leaderboard</p> }} />
         </Switch>
       </div>

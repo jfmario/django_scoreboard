@@ -131,6 +131,20 @@ class Challenge(models.Model):
   def html_hint(self):
     return markdown.markdown(self.hint,
       extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+  @property
+  def string_question_type(self):
+    if (self.question_type == 0):
+      return 'ShortAnswer'
+    if (self.question_type == 1):
+      return 'MultipleChoice'
+    if (self.question_type == 2):
+      if (self.regex_input_type == 0):
+        return 'ShortAnswer'
+      else:
+        return 'TextAnswer'
+  @property
+  def list_multiple_choice_options(self):
+    return [o.strip() for o in self.multiple_choice_options.split('\n')]
 
   def is_visible_to_user(self, upr):
 
@@ -159,6 +173,11 @@ class ChallengeGroup(models.Model):
   def __str__(self):
     return self.backend_name
 
+  def has_challenge(self, challenge):
+    if challenge in self.challenges.all():
+      return True
+    return False
+
 class CompetitionSchema(models.Model):
 
   backend_name = models.CharField(
@@ -172,6 +191,12 @@ class CompetitionSchema(models.Model):
 
   def __str__(self):
     return self.backend_name
+
+  def has_challenge(self, challenge):
+    for group in self.challenge_groups.all():
+      if group.has_challenge(challenge):
+        return True
+    return False
 
 class Competition(models.Model):
 

@@ -5,8 +5,40 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from main.models import Competition, SiteSettings
+from main.models import Challenge, Competition, SiteSettings
 from main.utils import get_user_participation_record, get_visible_challenge_list
+
+@csrf_exempt
+@login_required
+def get_challenge(request, competition_id, challenge_id):
+
+  competition = Competition.objects.get(pk=competition_id)
+  upr = get_user_participation_record(request.user, competition)
+
+  if not upr:
+    return HttpResponse("Unauthorized", status_code=401)
+
+  challenge = Challenge.objects.get(pk=challenge_id)
+  if competition.schema.has_challenge(challenge) and challenge.is_visible_to_user(upr):
+
+    data = {}
+    data['name'] = challenge.name
+    data['status'] = challenge.status
+    data['question'] = challenge.html_question
+    data['questionType'] = challenge.string_question_type
+    if data['questionType'] == 'MultipleChoice':
+      data['choices'] = challenge.list_multiple_choice_options
+    data['points'] = challenge.points
+    data['hintCost'] = challenge.hint_cost
+    data['wrongAnswerCost'] = challenge.wrong_answer_cost
+    data['solved'] = False
+
+    if challenge in upr.challenges_solved.all():
+      data['solved'] = True
+
+    return HttpResponse(json.dumps(data))
+  else:
+    return HttpResponse("Unauthorized", status_code=401)
 
 @csrf_exempt
 @login_required

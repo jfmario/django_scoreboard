@@ -17,8 +17,8 @@ class CompetitionMain extends Component {
     super(props);
 
     this.state = {
-      competition: null,
-      competitionId: 0
+      competition: props.competition,
+      competitionId: props.competitionId
     };
   }
 
