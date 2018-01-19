@@ -21,7 +21,8 @@ def competition(request, competition_id):
 
   data = {}
   data['status'] = status
-  data['competition'] = {}
+  data['competition'] = { 'id': competition.pk }
+  data['competition']['status'] = status
   data['competition']['name'] = competition.name
   data['competition']['description'] = competition.html_description
   data['competition']['welcome'] = competition.html_welcome_message

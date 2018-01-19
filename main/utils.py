@@ -3,10 +3,10 @@ from main.models import UserParticipationRecord
 
 def get_user_participation_record(user, competition):
 
-  upr = UserParticipationRecord.objects.get(user=user, competition=competition)
-  if upr:
+  try:
+    upr = UserParticipationRecord.objects.get(user=user, competition=competition)
     return upr
-  else:
+  except:
     if user in competition.users.all():
       upr = UserParticipationRecord(user=user, competition=competition)
       upr.save()

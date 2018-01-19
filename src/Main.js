@@ -19,7 +19,7 @@ class Main extends Component {
     return (
       <div className="container">
         <div className="columns">
-          <div className="col-8 col-mx-auto">
+          <div className="col-10 col-mx-auto">
             <Switch>
               <Route exact path="/" component={OpenCompetitions} />
               <Route path="/competition/:competitionId" component={Competition} />
