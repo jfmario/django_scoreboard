@@ -1,0 +1,81 @@
+
+# This assumes that sample.yaml is loaded.
+# It creates a competition #101 and several users with various scores.
+
+- model: auth.user
+  pk: 101
+  fields:
+    username: applejack
+    password: orange
+- model: auth.user
+  pk: 102
+  fields:
+    username: pinkiPie
+    password: pink
+- model: auth.user
+  pk: 103
+  fields:
+    username: rarity
+    password: white
+- model: auth.user
+  pk: 104
+  fields:
+    username: twilightSparkle
+    password: purple
+- model: auth.user
+  pk: 105
+  fields:
+    username: fluttershy
+    password: yellow
+- model: auth.user
+  pk: 106
+  fields:
+    username: rainbowDash
+    password: blue
+
+- model: main.competition
+  pk: 101
+  fields:
+    backend_name: Leaderboard Test
+    name: Leaderboard Test
+    schema: 101
+    start_time: 2017-01-01T00:00:00+00:00
+    end_time: 2017-12-31T23:59:59+00:00
+    is_open: true
+
+- model: main.UserParticipationRecord
+  pk: 101
+  fields:
+    user: 101
+    competition: 101
+    score: 44
+- model: main.UserParticipationRecord
+  pk: 102
+  fields:
+    user: 102
+    competition: 101
+    score: 17
+- model: main.UserParticipationRecord
+  pk: 103
+  fields:
+    user: 103
+    competition: 101
+    score: 47
+- model: main.UserParticipationRecord
+  pk: 104
+  fields:
+    user: 104
+    competition: 101
+    score: 3
+- model: main.UserParticipationRecord
+  pk: 105
+  fields:
+    user: 105
+    competition: 101
+    score: 33
+- model: main.UserParticipationRecord
+  pk: 106
+  fields:
+    user: 106
+    competition: 101
+    score: 16

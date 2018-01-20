@@ -1,18 +1,22 @@
 
-import datetime
+import datetime, re
 
 from django.contrib.auth.models import User
 from django.db import models
 
 import markdown
 
+from jfmario_django.model_fields import JsonField
 from jfmario_django.models import SingletonModel
+
+from jfmario_python3.markdown.extensions import SpectreCssExtension
 
 DEFAULT_MARKDOWN_EXTENSIONS = [
   'markdown.extensions.abbr',
   'markdown.extensions.extra',
   'markdown.extensions.fenced_code',
-  'markdown.extensions.tables'
+  'markdown.extensions.tables',
+  SpectreCssExtension()
 ]
 
 class SiteSettings(SingletonModel):
@@ -79,7 +83,7 @@ class Challenge(models.Model):
   name = models.CharField(max_length=64)
   status = models.IntegerField(choices=STATUS_CHOICES, default=0)
   question = models.TextField(help_text="Markdown Field")
-  hint = models.TextField(help_text="Markdown Field", null=True)
+  hint = models.TextField(blank=True, help_text="Markdown Field", null=True)
   question_type = models.IntegerField(choices=QUESTION_TYPE_CHOICES, default=0)
   short_answer = models.CharField(
     blank=True,
@@ -129,8 +133,10 @@ class Challenge(models.Model):
       extensions=DEFAULT_MARKDOWN_EXTENSIONS)
   @property
   def html_hint(self):
-    return markdown.markdown(self.hint,
-      extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+    if self.hint:
+      return markdown.markdown(self.hint,
+        extensions=DEFAULT_MARKDOWN_EXTENSIONS)
+    return None
   @property
   def string_question_type(self):
     if (self.question_type == 0):
@@ -148,9 +154,11 @@ class Challenge(models.Model):
 
   def is_visible_to_user(self, upr):
 
+    if upr.competition.status == 'NOT_STARTED':
+      return False
     if self.status < 1:
       return False
-    if self.challenge_unlock_min_points > upr.score:
+    if self.challenge_unlock_min_points > 0 and self.challenge_unlock_min_points > upr.score:
       return False
     elif len(list(self.challenge_unlock_dependencies.all())) == 0:
       return True
@@ -159,6 +167,12 @@ class Challenge(models.Model):
         if c not in upr.challenges_solved.all():
           return False
     return True
+
+  def check_answer(self, answer):
+    if self.question_type <= 1:
+      return (answer == self.short_answer)
+    else:
+      return (re.match(self.regex_answer, answer))
 
 class ChallengeGroup(models.Model):
 
@@ -177,6 +191,9 @@ class ChallengeGroup(models.Model):
     if challenge in self.challenges.all():
       return True
     return False
+
+  def get_max_score(self):
+    return sum([c.points for c in self.challenges.all()])
 
 class CompetitionSchema(models.Model):
 
@@ -198,6 +215,9 @@ class CompetitionSchema(models.Model):
         return True
     return False
 
+  def get_max_score(self):
+    return sum([cg.get_max_score() for cg in self.challenge_groups.all()])
+
 class Competition(models.Model):
 
   backend_name = models.CharField(
@@ -206,10 +226,12 @@ class Competition(models.Model):
   )
   name = models.CharField(max_length=64)
   use_custom_description = models.BooleanField(
+    default=False,
     help_text="If unchecked, description from the competition schema will be used."
   )
   custom_description = models.TextField(blank=True, help_text="Markdown Field", null=True)
   use_custom_welcome_message = models.BooleanField(
+    default=False,
     help_text="If unchecked, welcome message from the competition schema will be used."
   )
   custom_welcome_message = models.TextField(blank=True, help_text="Markdown Field", null=True)
@@ -260,8 +282,39 @@ class UserParticipationRecord(models.Model):
 
   user = models.ForeignKey(User, on_delete=models.CASCADE)
   competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
-  challenges_solved = models.ManyToManyField(Challenge, blank=True)
+  challenges_solved = models.ManyToManyField(Challenge, blank=True, null=True)
+  hints_purchased = models.ManyToManyField(Challenge, blank=True, related_name='hint_purchasers')
   score = models.IntegerField(default=0)
+  wrong_answers = JsonField(blank=True, null=True)
 
   def __str__(self):
     return "{} in {}".format(self.user, self.competition)
+
+  def purchase_hint(self, challenge):
+    if self.competition.schema.has_challenge(challenge) and challenge.hint:
+      self.score -= challenge.hint_cost
+      self.hints_purchased.add(challenge)
+      return True
+    else:
+      return False
+
+  def mark_solved(self, challenge):
+    if self.competition.schema.has_challenge(challenge):
+      self.score += challenge.points
+      self.challenges_solved.add(challenge)
+
+  def mark_incorrect(self, challenge, answer):
+    if self.competition.schema.has_challenge(challenge):
+      self.score -= challenge.wrong_answer_cost
+      if not self.wrong_answers:
+        self.wrong_answers = {}
+      if str(challenge.pk) not in self.wrong_answers:
+        self.wrong_answers[str(challenge.pk)] = []
+      self.wrong_answers[str(challenge.pk)].append(answer)
+
+  def get_wrong_answers(self, challenge):
+    if not self.wrong_answers:
+      self.wrong_answers = {}
+    if str(challenge.pk) not in self.wrong_answers:
+      self.wrong_answers[str(challenge.pk)] = []
+    return self.wrong_answers[str(challenge.pk)]

@@ -7,13 +7,15 @@ import ChallengesSidebar from './ChallengesSidebar';
 
 /**
 Component ChallengesMain
-props: competitionId, competitionId, challenges
+props: competitionId, competitionId, challenges, onChange
 */
 class ChallengesMain extends Component {
 
   constructor(props) {
 
     super(props);
+
+    this.handleChange = this.handleChange.bind(this);
 
     this.state = {
       challenges: props.challenges,
@@ -23,16 +25,17 @@ class ChallengesMain extends Component {
   }
 
   componentDidMount() {
-    console.log("ChallengesMain did mount.")
   }
 
   componentWillReceiveProps(props) {
-    console.log("ChallengesMain will receive props");
-    console.log(props);
     this.setState({
       challenges: props.challenges,
       competitionId: props.competitionId
     });
+  }
+
+  handleChange() {
+    this.props.onChange();
   }
 
   render() {
@@ -44,8 +47,8 @@ class ChallengesMain extends Component {
           </div>
           <div className="column col-9">
             <Switch>
-              <Route exact path='/competition/:competitionId/challenges' render={(routeProps) => { return (<p>Please choose a challenge from the left.</p>) }} />
-              <Route exact path='/competition/:competitionId/challenges/:challengeId' render={(routeProps) => { return (<Challenge challengeId={routeProps.match.params.challengeId} competitionId={routeProps.match.params.competitionId} />) }} />
+              <Route exact path='/competition/:competitionId/challenges' render={(routeProps) => { return (<div className="card"><div className="card-body"><p>Please choose a challenge from the left.</p></div></div>) }} />
+              <Route exact path='/competition/:competitionId/challenges/:challengeId' render={(routeProps) => { return (<Challenge challengeId={routeProps.match.params.challengeId} competitionId={routeProps.match.params.competitionId} onChange={this.handleChange} />) }} />
             </Switch>
           </div>
         </div>

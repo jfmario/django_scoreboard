@@ -4,7 +4,7 @@ import  { Link } from 'react-router-dom';
 
 /**
 Component CompetitionHeader
-props: competitionId, siteBranding, username
+props: competitionId, siteBranding, username, score, status
 */
 class CompetitionHeader extends Component {
 
@@ -46,6 +46,20 @@ class CompetitionHeader extends Component {
               </ul>
             </div>
           }
+
+          {!!(this.props.status == 'NOT_STARTED') &&
+            <span className="text-gray">This competition has not yet started.</span>
+          }
+          {!!(this.props.status == 'ACTIVE') &&
+            <span>Score: {this.props.score}</span>
+          }
+          {!!(this.props.status == 'OVER') &&
+            <span>
+              <span>Score: {this.props.score}. </span>
+              <span className="text-error">This competition has ended.</span>
+            </span>
+          }
+
         </section>
       </header>
     )

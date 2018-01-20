@@ -7,6 +7,7 @@ import axios from 'axios';
 import ChallengesMain from '../components/ChallengesMain';
 import CompetitionHeader from '../components/CompetitionHeader';
 import CompetitionMain from '../components/CompetitionMain';
+import Leaderboard from '../components/Leaderboard';
 
 class Competition extends Component {
 
@@ -14,12 +15,15 @@ class Competition extends Component {
 
     super(props);
 
+    this.refresh = this.refresh.bind(this);
+
     this.state = {
       challengeGroups: [],
       competition: null,
       competitionId: props.match.params.competitionId,
+      score: 0,
       siteBranding: "Scoreboard",
-      status: null,
+      status: 'NOT_STARTED',
       username: ''
     };
   }
@@ -33,15 +37,20 @@ class Competition extends Component {
       siteBranding: res.data.siteBranding,
       username: res.data.username
     });
+
+    var self = this;
+
+    setInterval(function() {
+      self.loadCompetition(self.state.competitionId);
+    }, 60000)
   }
   async componentWillReceiveProps(props) {
-    console.log("Competition will receive props.");
-    console.log(props);
     if (props.match.params.competitionId != this.state.competitionId) {
       var competitionId = props.match.params.competitionId;
       await this.loadCompetition(competitionId);
       this.setState({
-        competitionId: competitionId
+        competitionId: competitionId,
+        score: 0
       });
     }
   }
@@ -59,9 +68,13 @@ class Competition extends Component {
       this.setState({
         challengeGroups: challengeGroups,
         competition: res.data.competition,
+        score: res.data.score,
         status: res.data.status
       });
     }
+  }
+  refresh() {
+    this.loadCompetition(this.state.competitionId);
   }
   render() {
 
@@ -69,12 +82,13 @@ class Competition extends Component {
 
     return (
       <div>
-        <CompetitionHeader competitionId={this.state.competitionId} siteBranding={this.state.siteBranding} username={this.state.username} />
+
+        <CompetitionHeader competitionId={this.state.competitionId} siteBranding={this.state.siteBranding} username={this.state.username} score={this.state.score} status={this.state.status} />
 
         <Switch>
           <Route exact path='/competition/:competitionId' render={(routeProps) => { return <CompetitionMain competitionId={routeProps.competitionId} competition={self.state.competition} challenges={self.state.challenges} /> }}/>
-          <Route path='/competition/:competitionId/challenges' render={(routeProps) => { return <ChallengesMain challenges={self.state.challengeGroups} competitionId={routeProps.match.params.competitionId} /> }} />
-          <Route exact path='/competition/:competitionId/leaderboard' render={(routeProps) => { return <p>Leaderboard</p> }} />
+          <Route path='/competition/:competitionId/challenges' render={(routeProps) => { return <ChallengesMain challenges={self.state.challengeGroups} competitionId={routeProps.match.params.competitionId} onChange={this.refresh} /> }} />
+          <Route exact path='/competition/:competitionId/leaderboard' render={(routeProps) => { return <Leaderboard competitionId={routeProps.match.params.competitionId} /> }} />
         </Switch>
       </div>
     )

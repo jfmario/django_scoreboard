@@ -1,6 +1,5 @@
 
-* Create Special Upload System
-* Create User Landing Page
-* Set Up Webpack for main User Experience with React
-* Event Registration
-* Event Participation
+* Event Countdown
+* Block Submissions When Event is Over
+* Show Analytics Page When Event is Over?
+* Create Option for AWS Lambda function grading of files.

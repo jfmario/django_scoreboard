@@ -85,7 +85,7 @@
       What is the capital city of South Carolina?
     hint: |
       It's not Charleston.
-    question_type: 3
+    question_type: 2
     regex_answer: "^(c|C)olumbia$"
 - model: main.challenge
   pk: 107
@@ -98,9 +98,9 @@
       spelled out somehwere in the text.
     hint: |
       It is spelled like this: `five`.
-    question_type: 3
+    question_type: 2
     regex_input_type: 1
-    regex_answer: "five"
+    regex_answer: ".*five.*"
 - model: main.challenge
   pk: 108
   fields:
@@ -256,9 +256,9 @@
   fields:
     backend_name: "Sample Challenge Set"
     name: A Set of Questions
-    default_description:
+    default_description: |
       This is a set of questions in three different categories.
-    default_welcome_message:
+    default_welcome_message: |
       Welcome to this challenge set. Go ahead and try to solve some of
       these questions.
 
