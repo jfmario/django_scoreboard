@@ -150,8 +150,8 @@ def competition(request, competition_id):
   data['competition']['name'] = competition.name
   data['competition']['description'] = competition.html_description
   data['competition']['welcome'] = competition.html_welcome_message
-  data['competition']['startTime'] = competition.start_time.strftime('%Y-%m-%dT%H:%M:%S')
-  data['competition']['endTime'] = competition.end_time.strftime('%Y-%m-%dT%H:%M:%S')
+  data['competition']['startTime'] = competition.start_time.strftime('%Y-%m-%dT%H:%M:%S%z')
+  data['competition']['endTime'] = competition.end_time.strftime('%Y-%m-%dT%H:%M:%S%z')
 
   if status == 'ACTIVE' or status == 'OVER':
     data['challenges'] = get_visible_challenge_list(upr)
@@ -162,16 +162,14 @@ def competition(request, competition_id):
 @login_required
 def list_open_competitions(request):
 
-  open_competitions = Competition.objects.filter(is_open=True)
-  user_competitions = Competition.objects.filter(users__id=request.user.pk)
-  all_competitions = list(user_competitions) + list(open_competitions)
+  all_competitions = Competition.objects.filter(is_open=True) | Competition.objects.filter(users__id=request.user.pk)
 
   data = [{
     'id': c.pk,
     'name': c.name,
     'description': c.html_description,
-    'startTime': c.start_time.strftime('%Y-%m-%dT%H:%M:%S'),
-    'endTime': c.end_time.strftime('%Y-%m-%dT%H:%M:%S')
+    'startTime': c.start_time.strftime('%Y-%m-%dT%H:%M:%S%z'),
+    'endTime': c.end_time.strftime('%Y-%m-%dT%H:%M:%S%z')
   } for c in all_competitions]
   return HttpResponse(json.dumps(data))
 

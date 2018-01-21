@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import  { Route, Switch } from 'react-router-dom';
 
 import axios from 'axios';
+import moment from 'moment';
 
 import ChallengesMain from '../components/ChallengesMain';
 import CompetitionHeader from '../components/CompetitionHeader';
@@ -21,6 +22,7 @@ class Competition extends Component {
       challengeGroups: [],
       competition: null,
       competitionId: props.match.params.competitionId,
+      endTime: moment().toString(),
       score: 0,
       siteBranding: "Scoreboard",
       status: 'NOT_STARTED',
@@ -68,6 +70,7 @@ class Competition extends Component {
       this.setState({
         challengeGroups: challengeGroups,
         competition: res.data.competition,
+        endTime: res.data.competition.endTime,
         score: res.data.score,
         status: res.data.status
       });
@@ -83,7 +86,7 @@ class Competition extends Component {
     return (
       <div>
 
-        <CompetitionHeader competitionId={this.state.competitionId} siteBranding={this.state.siteBranding} username={this.state.username} score={this.state.score} status={this.state.status} />
+        <CompetitionHeader competitionId={this.state.competitionId} siteBranding={this.state.siteBranding} username={this.state.username} score={this.state.score} status={this.state.status} endTime={this.state.endTime} />
 
         <Switch>
           <Route exact path='/competition/:competitionId' render={(routeProps) => { return <CompetitionMain competitionId={routeProps.competitionId} competition={self.state.competition} challenges={self.state.challenges} /> }}/>

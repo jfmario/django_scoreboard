@@ -1,7 +1,7 @@
 
 # Django Scoreboard #
 
-A scoreboard for question/answer competitions.
+A functional scoreboard for question/answer competitions.
 
 ## Getting Started #
 
@@ -62,14 +62,6 @@ for reference. All fixtures should go in `.yaml` files.
 Note that for data files (example on line 197 (pk: 113)), the file
 must exist in the `.media/` directory for the challenge to actually work.
 You will have to put it there yourself for the fixture to work.
-
-## Docs #
-
-Docs
-
-## Files #
-
-## Acknowledgements #
 
 ### Authors #
 
