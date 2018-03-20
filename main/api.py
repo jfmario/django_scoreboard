@@ -164,6 +164,8 @@ def list_open_competitions(request):
 
   all_competitions = Competition.objects.filter(is_open=True) | Competition.objects.filter(users__id=request.user.pk)
 
+  print(all_competitions)
+  
   data = [{
     'id': c.pk,
     'name': c.name,
